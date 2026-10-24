@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 
-type Video = { name: string; size: number; added: number };
+type Video = { name: string; size: number; added: number; native: boolean };
 
 const title = (n: string) => n.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ");
 const mb = (b: number) => (b / 1e6 >= 1000 ? (b / 1e9).toFixed(1) + " GB" : Math.round(b / 1e6) + " MB");
@@ -46,7 +46,12 @@ export default function Home() {
           <button key={v.name} onClick={() => { setPlaying(v); scrollTo({ top: 0 }); }} className="group text-left">
             <div className="aspect-video overflow-hidden rounded-xl bg-zinc-900">
               {/* #t=0.5 makes the browser render a frame as the thumbnail */}
-              <video src={src(v.name) + "#t=0.5"} preload="metadata" muted className="h-full w-full object-cover transition group-hover:scale-105" />
+              {v.native ? (
+                <video src={src(v.name) + "#t=0.5"} preload="metadata" muted className="h-full w-full object-cover transition group-hover:scale-105" />
+              ) : (
+                // thumbnails would force a conversion of every file, so convert only on play
+                <div className="grid h-full w-full place-items-center text-zinc-500">{v.name.split(".").pop()?.toUpperCase()}</div>
+              )}
             </div>
             <h3 className="mt-2 line-clamp-2 font-medium">{title(v.name)}</h3>
             <p className="text-sm text-zinc-400">{mb(v.size)} · {new Date(v.added).toLocaleDateString()}</p>
